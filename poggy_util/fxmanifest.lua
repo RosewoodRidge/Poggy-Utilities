@@ -8,15 +8,20 @@ version '1.0.0'
 
 shared_scripts {
     'config.lua',
-    'exports.lua'
+    'exports.lua',
+    'shared/*.lua'  -- Framework detection (must load before client/server)
 }
 
 client_scripts {
-    'client/*.lua'
+    'client/cl_framework.lua',  -- Framework bridge (load first)
+    'client/cl_notifications.lua',  -- Notifications (load second)
+    'client/*.lua'  -- Other client scripts
 }
 
 server_scripts {
-    'server/*.lua'
+    '@oxmysql/lib/MySQL.lua',  -- Database (optional, for standalone mode)
+    'server/sv_framework.lua',  -- Framework bridge (load first)
+    'server/*.lua'  -- Other server scripts
 }
 
 ui_page 'ui/index.html'
