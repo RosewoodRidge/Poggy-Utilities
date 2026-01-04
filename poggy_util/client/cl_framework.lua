@@ -330,6 +330,15 @@ end)
 -- EXPORTS
 -- ============================================================================
 
+-- Framework detection exports (client-side)
+exports('GetFrameworkType', function()
+    return PoggyFramework.GetType()
+end)
+
+exports('IsFrameworkReady', function()
+    return PoggyFramework.IsReady()
+end)
+
 exports('GetLocalCharacterInfo', function()
     return PoggyFramework.GetLocalCharacterInfo()
 end)
