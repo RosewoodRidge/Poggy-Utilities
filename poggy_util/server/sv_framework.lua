@@ -35,8 +35,9 @@ function PoggyFramework.GetPlayer(source)
         return core.Functions.GetPlayer(source)
     elseif fwType == 'qbcore' and core then
         return core.Functions.GetPlayer(source)
-    elseif fwType == 'vorp' and core then
-        return core.getUser(source)
+    elseif fwType == 'vorp' or fwType == 'standalone' or fwType == 'redemrp' then
+        -- For VORP, standalone, and redemrp, return database-based character info
+        return PoggyFramework.GetCharacterInfoFromDB(source)
     end
     
     return nil
@@ -61,11 +62,9 @@ function PoggyFramework.GetCharacter(source)
         if Player then
             return Player.PlayerData
         end
-    elseif fwType == 'vorp' and core then
-        local User = core.getUser(source)
-        if User then
-            return User.getUsedCharacter
-        end
+    elseif fwType == 'vorp' or fwType == 'standalone' or fwType == 'redemrp' then
+        -- For VORP, standalone, and redemrp, return database-based character info
+        return PoggyFramework.GetCharacterInfoFromDB(source)
     end
     
     return nil
@@ -112,44 +111,60 @@ function PoggyFramework.GetCharacterInfo(source)
             jobGradeName = pd.job and pd.job.grade and pd.job.grade.name or "None",
             onDuty = pd.job and pd.job.onduty or false
         }
-    elseif fwType == 'vorp' and core then
-        local User = core.getUser(source)
-        if not User then return nil end
-        
-        local Character = User.getUsedCharacter
-        if not Character then return nil end
-        
-        return {
-            charId = Character.charIdentifier,
-            identifier = Character.identifier,
-            firstname = Character.firstname or "Unknown",
-            lastname = Character.lastname or "Unknown",
-            job = Character.job or "unemployed",
-            jobLabel = Character.job or "Unemployed", -- VORP doesn't have separate label
-            jobGrade = Character.jobGrade or 0,
-            jobGradeName = tostring(Character.jobGrade or 0), -- VORP doesn't have grade names
-            onDuty = nil -- VORP doesn't have built-in duty status
-        }
-    elseif fwType == 'standalone' or fwType == 'redemrp' then
-        -- Database-based retrieval for standalone mode
+    elseif fwType == 'vorp' or fwType == 'standalone' or fwType == 'redemrp' then
+        -- Use database-based retrieval for VORP, standalone, and redemrp
+        -- This is more reliable across all VORP versions
         return PoggyFramework.GetCharacterInfoFromDB(source)
     end
     
     return nil
 end
 
---- Get character info from database (for standalone/redemrp mode)
+--- Get character info from database (for VORP, standalone, and redemrp mode)
 ---@param source number The player's server ID
 ---@return table|nil Normalized character info
 function PoggyFramework.GetCharacterInfoFromDB(source)
-    local identifier = PoggyFramework.GetPlayerIdentifier(source)
+    -- Get steam identifier (VORP uses steam) and license (RSG/QBCore use license)
+    local steamId = GetPlayerIdentifierByType(source, 'steam')
+    local license = GetPlayerIdentifierByType(source, 'license')
+    
+    if not steamId and not license then
+        Debug("GetCharacterInfoFromDB: No identifier found for player " .. tostring(source))
+        return nil
+    end
+    
+    local result = nil
+    local fwType = PoggyFramework.GetType()
+    
+    -- For VORP: Query using steam identifier and get the most recently logged in character
+    if fwType == 'vorp' and steamId then
+        Debug("GetCharacterInfoFromDB: Querying VORP characters table with steam: " .. steamId)
+        result = MySQL.query.await('SELECT charidentifier, identifier, firstname, lastname, job, joblabel, jobgrade FROM characters WHERE identifier = ? ORDER BY LastLogin DESC LIMIT 1', {steamId})
+        if result and result[1] then
+            local char = result[1]
+            Debug("GetCharacterInfoFromDB: Found VORP character - " .. (char.firstname or "") .. " " .. (char.lastname or "") .. " job: " .. (char.job or "none"))
+            return {
+                charId = char.charidentifier,
+                identifier = char.identifier,
+                firstname = char.firstname or "Unknown",
+                lastname = char.lastname or "Unknown",
+                job = char.job or "unemployed",
+                jobLabel = char.joblabel or char.job or "Unemployed",
+                jobGrade = char.jobgrade or 0,
+                jobGradeName = tostring(char.jobgrade or 0),
+                onDuty = nil
+            }
+        else
+            Debug("GetCharacterInfoFromDB: No VORP character found for " .. steamId)
+        end
+    end
+    
+    -- Fallback: Try with license identifier for non-VORP or if steam lookup failed
+    local identifier = license or steamId
     if not identifier then return nil end
     
-    -- Try different database structures
-    local result = nil
-    
-    -- Try VORP characters table first
-    result = MySQL.query.await('SELECT * FROM characters WHERE identifier = ? LIMIT 1', {identifier})
+    -- Try VORP characters table with license (fallback)
+    result = MySQL.query.await('SELECT charidentifier, identifier, firstname, lastname, job, joblabel, jobgrade FROM characters WHERE identifier = ? ORDER BY LastLogin DESC LIMIT 1', {identifier})
     if result and result[1] then
         local char = result[1]
         return {
@@ -158,7 +173,7 @@ function PoggyFramework.GetCharacterInfoFromDB(source)
             firstname = char.firstname or "Unknown",
             lastname = char.lastname or "Unknown",
             job = char.job or "unemployed",
-            jobLabel = char.job or "Unemployed",
+            jobLabel = char.joblabel or char.job or "Unemployed",
             jobGrade = char.jobgrade or 0,
             jobGradeName = tostring(char.jobgrade or 0),
             onDuty = nil
@@ -184,6 +199,7 @@ function PoggyFramework.GetCharacterInfoFromDB(source)
         }
     end
     
+    Debug("GetCharacterInfoFromDB: No character found in any table for " .. tostring(identifier))
     return nil
 end
 
