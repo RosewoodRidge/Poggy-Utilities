@@ -442,144 +442,67 @@ end
 
 -------------------------------------------------------------------------------------------------------------
 -- REGISTER EVENT HANDLERS (VORP-Compatible Events)
--- These allow other scripts to call notifications via TriggerEvent using the familiar vorp: prefix
--- OR using the new poggy: prefix
+-- IMPORTANT: Only register poggy: prefixed events to avoid conflicts with VORP Core
+-- VORP Core already handles vorp: prefixed events, so we don't register them here
 -------------------------------------------------------------------------------------------------------------
 
--- Register both poggy: and vorp: events for backwards compatibility
-local eventPrefixes = {'poggy:', 'vorp:'}
+-- Event handler functions mapped by event name
+local eventHandlers = {
+    ['NotifyLeft'] = function(firsttext, secondtext, dict, icon, duration, color)
+        PoggyNotification:NotifyLeft(tostring(firsttext), tostring(secondtext), tostring(dict), tostring(icon), tonumber(duration), tostring(color or "COLOR_WHITE"))
+    end,
+    ['Tip'] = function(text, duration)
+        PoggyNotification:NotifyTip(tostring(text), tonumber(duration))
+    end,
+    ['NotifyTop'] = function(text, location, duration)
+        PoggyNotification:NotifyTop(tostring(text), tostring(location), tonumber(duration))
+    end,
+    ['TipRight'] = function(text, duration)
+        PoggyNotification:NotifyRightTip(tostring(text), tonumber(duration))
+    end,
+    ['TipBottom'] = function(text, duration)
+        PoggyNotification:NotifyObjective(tostring(text), tonumber(duration))
+    end,
+    ['ShowTopNotification'] = function(title, subtitle, duration)
+        PoggyNotification:NotifySimpleTop(tostring(title), tostring(subtitle), tonumber(duration))
+    end,
+    ['ShowAdvancedNotification'] = function(text, dict, icon, text_color, duration, quality)
+        PoggyNotification:NotifyAdvanced(tostring(text), tostring(dict), tostring(icon), tostring(text_color), tonumber(duration), quality)
+    end,
+    ['ShowAdvancedRightNotification'] = function(text, dict, icon, text_color, duration, quality)
+        PoggyNotification:NotifyAdvanced(tostring(text), tostring(dict), tostring(icon), tostring(text_color), tonumber(duration), quality)
+    end,
+    ['ShowBasicTopNotification'] = function(text, duration)
+        PoggyNotification:NotifyBasicTop(tostring(text), tonumber(duration))
+    end,
+    ['ShowSimpleCenterText'] = function(text, duration)
+        PoggyNotification:NotifyCenter(tostring(text), tonumber(duration))
+    end,
+    ['ShowBottomRight'] = function(text, duration)
+        PoggyNotification:NotifyBottomRight(tostring(text), tonumber(duration))
+    end,
+    ['failmissioNotifY'] = function(title, subtitle, duration)
+        PoggyNotification:NotifyFail(tostring(title), tostring(subtitle), tonumber(duration))
+    end,
+    ['deadplayerNotifY'] = function(title, audioRef, audioName, duration)
+        PoggyNotification:NotifyDead(tostring(title), tostring(audioRef), tostring(audioName), tonumber(duration))
+    end,
+    ['updatemissioNotify'] = function(utitle, umsg, duration)
+        PoggyNotification:NotifyUpdate(tostring(utitle), tostring(umsg), tonumber(duration))
+    end,
+    ['warningNotify'] = function(title, msg, audioRef, audioName, duration)
+        PoggyNotification:NotifyWarning(tostring(title), tostring(msg), tostring(audioRef), tostring(audioName), tonumber(duration))
+    end,
+    ['LeftRank'] = function(title, subtitle, dict, icon, duration, color)
+        PoggyNotification:NotifyLeftRank(tostring(title), tostring(subtitle), tostring(dict), tostring(icon), tonumber(duration), tostring(color))
+    end
+}
 
-for _, prefix in ipairs(eventPrefixes) do
-    RegisterNetEvent(prefix .. 'NotifyLeft')
-    RegisterNetEvent(prefix .. 'Tip')
-    RegisterNetEvent(prefix .. 'NotifyTop')
-    RegisterNetEvent(prefix .. 'TipRight')
-    RegisterNetEvent(prefix .. 'TipBottom')
-    RegisterNetEvent(prefix .. 'ShowTopNotification')
-    RegisterNetEvent(prefix .. 'ShowAdvancedNotification')
-    RegisterNetEvent(prefix .. 'ShowAdvancedRightNotification')
-    RegisterNetEvent(prefix .. 'ShowBasicTopNotification')
-    RegisterNetEvent(prefix .. 'ShowSimpleCenterText')
-    RegisterNetEvent(prefix .. 'ShowBottomRight')
-    RegisterNetEvent(prefix .. 'failmissioNotifY')
-    RegisterNetEvent(prefix .. 'deadplayerNotifY')
-    RegisterNetEvent(prefix .. 'updatemissioNotify')
-    RegisterNetEvent(prefix .. 'warningNotify')
-    RegisterNetEvent(prefix .. 'LeftRank')
+-- Only register poggy: prefixed events (VORP Core handles vorp: events)
+for eventName, handler in pairs(eventHandlers) do
+    RegisterNetEvent('poggy:' .. eventName)
+    AddEventHandler('poggy:' .. eventName, handler)
 end
-
--- Event Handlers
-AddEventHandler('poggy:NotifyLeft', function(firsttext, secondtext, dict, icon, duration, color)
-    PoggyNotification:NotifyLeft(tostring(firsttext), tostring(secondtext), tostring(dict), tostring(icon), tonumber(duration), tostring(color or "COLOR_WHITE"))
-end)
-AddEventHandler('vorp:NotifyLeft', function(firsttext, secondtext, dict, icon, duration, color)
-    PoggyNotification:NotifyLeft(tostring(firsttext), tostring(secondtext), tostring(dict), tostring(icon), tonumber(duration), tostring(color or "COLOR_WHITE"))
-end)
-
-AddEventHandler('poggy:Tip', function(text, duration)
-    PoggyNotification:NotifyTip(tostring(text), tonumber(duration))
-end)
-AddEventHandler('vorp:Tip', function(text, duration)
-    PoggyNotification:NotifyTip(tostring(text), tonumber(duration))
-end)
-
-AddEventHandler('poggy:NotifyTop', function(text, location, duration)
-    PoggyNotification:NotifyTop(tostring(text), tostring(location), tonumber(duration))
-end)
-AddEventHandler('vorp:NotifyTop', function(text, location, duration)
-    PoggyNotification:NotifyTop(tostring(text), tostring(location), tonumber(duration))
-end)
-
-AddEventHandler('poggy:TipRight', function(text, duration)
-    PoggyNotification:NotifyRightTip(tostring(text), tonumber(duration))
-end)
-AddEventHandler('vorp:TipRight', function(text, duration)
-    PoggyNotification:NotifyRightTip(tostring(text), tonumber(duration))
-end)
-
-AddEventHandler('poggy:TipBottom', function(text, duration)
-    PoggyNotification:NotifyObjective(tostring(text), tonumber(duration))
-end)
-AddEventHandler('vorp:TipBottom', function(text, duration)
-    PoggyNotification:NotifyObjective(tostring(text), tonumber(duration))
-end)
-
-AddEventHandler('poggy:ShowTopNotification', function(title, subtitle, duration)
-    PoggyNotification:NotifySimpleTop(tostring(title), tostring(subtitle), tonumber(duration))
-end)
-AddEventHandler('vorp:ShowTopNotification', function(title, subtitle, duration)
-    PoggyNotification:NotifySimpleTop(tostring(title), tostring(subtitle), tonumber(duration))
-end)
-
-AddEventHandler('poggy:ShowAdvancedNotification', function(text, dict, icon, text_color, duration, quality)
-    PoggyNotification:NotifyAdvanced(tostring(text), tostring(dict), tostring(icon), tostring(text_color), tonumber(duration), quality)
-end)
-AddEventHandler('vorp:ShowAdvancedNotification', function(text, dict, icon, text_color, duration, quality)
-    PoggyNotification:NotifyAdvanced(tostring(text), tostring(dict), tostring(icon), tostring(text_color), tonumber(duration), quality)
-end)
-
-AddEventHandler('poggy:ShowAdvancedRightNotification', function(text, dict, icon, text_color, duration, quality)
-    PoggyNotification:NotifyAdvanced(tostring(text), tostring(dict), tostring(icon), tostring(text_color), tonumber(duration), quality)
-end)
-AddEventHandler('vorp:ShowAdvancedRightNotification', function(text, dict, icon, text_color, duration, quality)
-    PoggyNotification:NotifyAdvanced(tostring(text), tostring(dict), tostring(icon), tostring(text_color), tonumber(duration), quality)
-end)
-
-AddEventHandler('poggy:ShowBasicTopNotification', function(text, duration)
-    PoggyNotification:NotifyBasicTop(tostring(text), tonumber(duration))
-end)
-AddEventHandler('vorp:ShowBasicTopNotification', function(text, duration)
-    PoggyNotification:NotifyBasicTop(tostring(text), tonumber(duration))
-end)
-
-AddEventHandler('poggy:ShowSimpleCenterText', function(text, duration)
-    PoggyNotification:NotifyCenter(tostring(text), tonumber(duration))
-end)
-AddEventHandler('vorp:ShowSimpleCenterText', function(text, duration)
-    PoggyNotification:NotifyCenter(tostring(text), tonumber(duration))
-end)
-
-AddEventHandler('poggy:ShowBottomRight', function(text, duration)
-    PoggyNotification:NotifyBottomRight(tostring(text), tonumber(duration))
-end)
-AddEventHandler('vorp:ShowBottomRight', function(text, duration)
-    PoggyNotification:NotifyBottomRight(tostring(text), tonumber(duration))
-end)
-
-AddEventHandler('poggy:failmissioNotifY', function(title, subtitle, duration)
-    PoggyNotification:NotifyFail(tostring(title), tostring(subtitle), tonumber(duration))
-end)
-AddEventHandler('vorp:failmissioNotifY', function(title, subtitle, duration)
-    PoggyNotification:NotifyFail(tostring(title), tostring(subtitle), tonumber(duration))
-end)
-
-AddEventHandler('poggy:deadplayerNotifY', function(title, audioRef, audioName, duration)
-    PoggyNotification:NotifyDead(tostring(title), tostring(audioRef), tostring(audioName), tonumber(duration))
-end)
-AddEventHandler('vorp:deadplayerNotifY', function(title, audioRef, audioName, duration)
-    PoggyNotification:NotifyDead(tostring(title), tostring(audioRef), tostring(audioName), tonumber(duration))
-end)
-
-AddEventHandler('poggy:updatemissioNotify', function(utitle, umsg, duration)
-    PoggyNotification:NotifyUpdate(tostring(utitle), tostring(umsg), tonumber(duration))
-end)
-AddEventHandler('vorp:updatemissioNotify', function(utitle, umsg, duration)
-    PoggyNotification:NotifyUpdate(tostring(utitle), tostring(umsg), tonumber(duration))
-end)
-
-AddEventHandler('poggy:warningNotify', function(title, msg, audioRef, audioName, duration)
-    PoggyNotification:NotifyWarning(tostring(title), tostring(msg), tostring(audioRef), tostring(audioName), tonumber(duration))
-end)
-AddEventHandler('vorp:warningNotify', function(title, msg, audioRef, audioName, duration)
-    PoggyNotification:NotifyWarning(tostring(title), tostring(msg), tostring(audioRef), tostring(audioName), tonumber(duration))
-end)
-
-AddEventHandler('poggy:LeftRank', function(title, subtitle, dict, icon, duration, color)
-    PoggyNotification:NotifyLeftRank(tostring(title), tostring(subtitle), tostring(dict), tostring(icon), tonumber(duration), tostring(color))
-end)
-AddEventHandler('vorp:LeftRank', function(title, subtitle, dict, icon, duration, color)
-    PoggyNotification:NotifyLeftRank(tostring(title), tostring(subtitle), tostring(dict), tostring(icon), tonumber(duration), tostring(color))
-end)
 
 -------------------------------------------------------------------------------------------------------------
 -- EXPORTS

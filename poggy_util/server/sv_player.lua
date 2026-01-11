@@ -61,22 +61,37 @@ function PoggyUtil.Player.GetCharacterInfo(source)
     local fwType = PoggyFramework and PoggyFramework.GetType() or nil
     local core = PoggyFramework and PoggyFramework.GetCore() or nil
     
-    if fwType == 'vorp' and core then
-        local user = core.getUser(src)
-        if user then
-            local character = user.getUsedCharacter
-            if character then
-                return {
-                    charId = character.charIdentifier,
-                    identifier = character.identifier,
-                    firstname = character.firstname,
-                    lastname = character.lastname,
-                    job = character.job,
-                    jobLabel = character.job,
-                    jobGrade = character.jobGrade,
-                    jobGradeName = tostring(character.jobGrade),
-                    group = character.group
-                }
+    if fwType == 'vorp' then
+        -- Use VORP exports directly with new API
+        local VORPCore = nil
+        local success = pcall(function()
+            VORPCore = exports.vorp_core:vorpAPI()
+        end)
+        
+        -- Fallback to old API if new one doesn't exist
+        if not success or not VORPCore then
+            success = pcall(function()
+                VORPCore = exports.vorp_core:GetCore()
+            end)
+        end
+        
+        if success and VORPCore then
+            local user = VORPCore.getUser(src)
+            if user then
+                local character = user.getUsedCharacter
+                if character then
+                    return {
+                        charId = character.charIdentifier,
+                        identifier = character.identifier,
+                        firstname = character.firstname,
+                        lastname = character.lastname,
+                        job = character.job,
+                        jobLabel = character.job,
+                        jobGrade = character.jobGrade,
+                        jobGradeName = tostring(character.jobGrade),
+                        group = character.group
+                    }
+                end
             end
         end
     elseif fwType == 'rsg' and core then
@@ -205,13 +220,28 @@ Citizen.CreateThread(function()
                             local paid = false
                             local core = PoggyFramework.GetCore()
                             
-                            if fwType == 'vorp' and core then
-                                local user = core.getUser(src)
-                                if user then
-                                    local char = user.getUsedCharacter
-                                    if char then
-                                        char.addCurrency(0, totalPay)
-                                        paid = true
+                            if fwType == 'vorp' then
+                                -- Use VORP exports directly with new API
+                                local VORPCore = nil
+                                local success = pcall(function()
+                                    VORPCore = exports.vorp_core:vorpAPI()
+                                end)
+                                
+                                -- Fallback to old API if new one doesn't exist
+                                if not success or not VORPCore then
+                                    success = pcall(function()
+                                        VORPCore = exports.vorp_core:GetCore()
+                                    end)
+                                end
+                                
+                                if success and VORPCore then
+                                    local user = VORPCore.getUser(src)
+                                    if user then
+                                        local char = user.getUsedCharacter
+                                        if char then
+                                            char.addCurrency(0, totalPay)
+                                            paid = true
+                                        end
                                     end
                                 end
                             elseif fwType == 'rsg' and core then
