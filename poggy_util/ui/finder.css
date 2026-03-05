@@ -1,0 +1,365 @@
+/* ============================================
+   POGGY FINDER - Location Search UI
+   RDR2-themed, elegant & minimal
+   ============================================ */
+
+/* Backdrop overlay */
+#finder-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 9000;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 12vh;
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+}
+
+#finder-overlay.visible {
+    display: flex;
+}
+
+/* Main panel */
+#finder-panel {
+    width: 480px;
+    max-height: 68vh;
+    background: linear-gradient(180deg, #1a1714 0%, #141210 100%);
+    border: 1px solid rgba(180, 150, 100, 0.25);
+    border-radius: 6px;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: finderSlideIn 0.2s ease-out;
+}
+
+@keyframes finderSlideIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Header */
+#finder-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px 10px 18px;
+    border-bottom: 1px solid rgba(180, 150, 100, 0.12);
+}
+
+#finder-title {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #d4c5a0;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+#finder-close {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 4px;
+    color: #998b70;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    line-height: 1;
+}
+
+#finder-close:hover {
+    background: rgba(200, 80, 60, 0.3);
+    color: #e8c8a0;
+}
+
+/* Search row */
+#finder-search-row {
+    display: flex;
+    padding: 12px 18px 10px 18px;
+    gap: 8px;
+}
+
+#finder-search {
+    flex: 1;
+    padding: 9px 14px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(180, 150, 100, 0.18);
+    border-radius: 4px;
+    color: #e8dcc4;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#finder-search::placeholder {
+    color: rgba(180, 160, 120, 0.4);
+}
+
+#finder-search:focus {
+    border-color: rgba(200, 170, 110, 0.45);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+#finder-category {
+    width: 150px;
+    padding: 9px 10px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(180, 150, 100, 0.18);
+    border-radius: 4px;
+    color: #e8dcc4;
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23998b70'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+}
+
+#finder-category:focus {
+    border-color: rgba(200, 170, 110, 0.45);
+}
+
+#finder-category option {
+    background: #1a1714;
+    color: #e8dcc4;
+}
+
+/* Results info */
+#finder-info {
+    padding: 0 18px 6px 18px;
+    color: rgba(180, 160, 120, 0.5);
+    font-size: 11px;
+    letter-spacing: 0.3px;
+}
+
+/* Results list */
+#finder-results {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 10px 10px 10px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(180, 150, 100, 0.2) transparent;
+}
+
+#finder-results::-webkit-scrollbar {
+    width: 5px;
+}
+#finder-results::-webkit-scrollbar-track {
+    background: transparent;
+}
+#finder-results::-webkit-scrollbar-thumb {
+    background: rgba(180, 150, 100, 0.2);
+    border-radius: 3px;
+}
+#finder-results::-webkit-scrollbar-thumb:hover {
+    background: rgba(180, 150, 100, 0.35);
+}
+
+/* Individual result item */
+.finder-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    margin-bottom: 2px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s;
+    gap: 10px;
+}
+
+.finder-item:hover {
+    background: rgba(180, 150, 100, 0.1);
+}
+
+.finder-item:active {
+    background: rgba(180, 150, 100, 0.18);
+}
+
+.finder-item-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+    background: rgba(180, 150, 100, 0.08);
+    color: #b4a078;
+}
+
+.finder-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.finder-item-name {
+    color: #e0d4b8;
+    font-size: 13.5px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Highlight matching text */
+.finder-item-name mark {
+    background: none;
+    color: #f0c060;
+    font-weight: 700;
+}
+
+.finder-item-category {
+    font-size: 11px;
+    color: rgba(180, 160, 120, 0.45);
+    margin-top: 2px;
+}
+
+.finder-item-arrow {
+    color: rgba(180, 150, 100, 0.2);
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: color 0.15s;
+}
+
+.finder-item:hover .finder-item-arrow {
+    color: rgba(200, 170, 110, 0.5);
+}
+
+/* Category badge colors */
+.cat-icon-doctor        { background: rgba(200, 60, 60, 0.15); color: #d07070; }
+.cat-icon-sheriff       { background: rgba(70, 130, 200, 0.15); color: #7090d0; }
+.cat-icon-general       { background: rgba(180, 150, 100, 0.12); color: #b4a078; }
+.cat-icon-gunsmith      { background: rgba(160, 160, 160, 0.12); color: #a0a0a0; }
+.cat-icon-butcher       { background: rgba(180, 80, 80, 0.12); color: #c08060; }
+.cat-icon-fish          { background: rgba(60, 140, 180, 0.12); color: #60a0c0; }
+.cat-icon-seeds         { background: rgba(80, 160, 80, 0.12); color: #70b070; }
+.cat-icon-camp          { background: rgba(140, 120, 80, 0.12); color: #a09060; }
+.cat-icon-pet           { background: rgba(180, 140, 60, 0.12); color: #c0a060; }
+.cat-icon-ranch         { background: rgba(140, 100, 60, 0.12); color: #a08050; }
+.cat-icon-blacksmith    { background: rgba(100, 100, 120, 0.15); color: #909098; }
+.cat-icon-clothing      { background: rgba(160, 100, 160, 0.12); color: #b080b0; }
+.cat-icon-wardrobe      { background: rgba(140, 100, 160, 0.12); color: #a080c0; }
+.cat-icon-saloon        { background: rgba(180, 140, 60, 0.15); color: #c0a050; }
+.cat-icon-horse         { background: rgba(140, 110, 80, 0.12); color: #b09060; }
+.cat-icon-prison        { background: rgba(100, 100, 100, 0.12); color: #888888; }
+.cat-icon-player        { background: rgba(100, 180, 100, 0.12); color: #70c070; }
+.cat-icon-barber        { background: rgba(180, 140, 180, 0.12); color: #c0a0c0; }
+.cat-icon-post          { background: rgba(180, 160, 100, 0.12); color: #c0b070; }
+.cat-icon-bank          { background: rgba(200, 180, 80, 0.12); color: #d0c060; }
+.cat-icon-hotel         { background: rgba(140, 140, 180, 0.12); color: #a0a0c0; }
+.cat-icon-stable        { background: rgba(140, 120, 80, 0.12); color: #b0a060; }
+.cat-icon-balloon       { background: rgba(100, 180, 220, 0.14); color: #70b8d8; }
+.cat-icon-publicjob     { background: rgba(180, 160, 80, 0.14); color: #c0b060; }
+.cat-icon-deliveryjob   { background: rgba(80, 160, 140, 0.14); color: #60b0a0; }
+.cat-icon-contractjob   { background: rgba(200, 100, 80, 0.14); color: #d08060; }
+.cat-icon-legendhunter  { background: rgba(140, 60, 60, 0.18); color: #c06060; }
+.cat-icon-default       { background: rgba(150, 150, 150, 0.1); color: #999; }
+
+/* Nearest sort button */
+#finder-nearest {
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(180, 150, 100, 0.18);
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 4px;
+    color: #998b70;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+#finder-nearest:hover {
+    background: rgba(180, 150, 100, 0.14);
+    color: #d4c5a0;
+}
+
+#finder-nearest.active {
+    background: rgba(200, 170, 110, 0.2);
+    border-color: rgba(200, 170, 110, 0.45);
+    color: #f0c060;
+}
+
+/* Item meta row (category + distance side by side) */
+.finder-item-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 2px;
+}
+
+.finder-item-distance {
+    font-size: 10.5px;
+    color: rgba(180, 160, 120, 0.38);
+    white-space: nowrap;
+}
+
+/* Empty state */
+#finder-empty {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+    color: rgba(180, 160, 120, 0.35);
+    font-size: 13px;
+}
+
+#finder-empty.visible {
+    display: block;
+}
+
+/* Footer area */
+#finder-footer {
+    padding: 8px 18px 12px 18px;
+    border-top: 1px solid rgba(180, 150, 100, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Clear waypoint button */
+#finder-clear-waypoint {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 16px;
+    background: rgba(200, 60, 60, 0.12);
+    border: 1px solid rgba(200, 80, 60, 0.25);
+    border-radius: 4px;
+    color: #c07060;
+    font-size: 11.5px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.3px;
+}
+
+#finder-clear-waypoint:hover {
+    background: rgba(200, 60, 60, 0.22);
+    border-color: rgba(200, 80, 60, 0.4);
+    color: #e09080;
+}
+
+/* Subtle hint */
+#finder-hint {
+    color: rgba(180, 160, 120, 0.25);
+    font-size: 10.5px;
+    text-align: center;
+    letter-spacing: 0.3px;
+}

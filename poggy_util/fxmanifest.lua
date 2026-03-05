@@ -4,10 +4,11 @@ rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aw
 lua54 'yes'
 author 'Poggy'
 description 'Various utilities for RedM servers'
-version '1.0.0'
+version '1.2.0'
 
 shared_scripts {
     'config.lua',
+    'config_help.lua',
     'exports.lua',
     'shared/*.lua'  -- Framework detection (must load before client/server)
 }
@@ -29,8 +30,13 @@ ui_page 'ui/index.html'
 files {
     'ui/index.html',
     'ui/music.css',
+    'ui/finder.css',
+    'ui/finder.js',
+    'ui/sell.css',
+    'ui/sell.js',
     'ui/sounds.js',
     'ui/*',
+    'ui/img/**/*',
     'ui/sfx/**/*'
 }
 

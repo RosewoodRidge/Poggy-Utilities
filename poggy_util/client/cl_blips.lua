@@ -233,28 +233,30 @@ end
 ---@param z number|nil Z coordinate (optional)
 ---@return boolean success
 local function SetGPS(x, y, z)
-    SetNewWaypoint(x + 0.0, y + 0.0)
+    z = z or 0.0
+    ClearGpsMultiRoute()
+    local ped = PlayerPedId()
+    local pl = GetEntityCoords(ped)
+    StartGpsMultiRoute(joaat("COLOR_WHITE"), true, true)
+    AddPointToGpsMultiRoute(pl.x, pl.y, pl.z, false)
+    AddPointToGpsMultiRoute(x + 0.0, y + 0.0, z + 0.0, false)
+    SetGpsMultiRouteRender(true)
     Debug(string.format("GPS set to %.2f, %.2f", x, y))
     return true
 end
 
---- Set waypoint marker
+--- Set waypoint marker (GPS route in RedM)
 ---@param x number X coordinate
 ---@param y number Y coordinate
 ---@return boolean success
 local function SetWaypoint(x, y)
-    SetNewWaypoint(x + 0.0, y + 0.0)
-    return true
+    return SetGPS(x, y, 0.0)
 end
 
---- Clear current waypoint
+--- Clear current waypoint / GPS route
 ---@return boolean success
 local function ClearWaypoint()
-    local waypointBlip = GetFirstBlipInfoId(GetWaypointBlipEnumId())
-    if DoesBlipExist(waypointBlip) then
-        SetBlipRoute(waypointBlip, false)
-        RemoveBlip(waypointBlip)
-    end
+    ClearGpsMultiRoute()
     return true
 end
 

@@ -40,9 +40,9 @@ end)
 
 -- Function to get character information for a player (framework-agnostic)
 function PoggyUtil.Player.GetCharacterInfo(source)
-    -- Use the new framework abstraction
-    if PoggyFramework and PoggyFramework.IsReady then
-        local charInfo = exports['poggy_util']:GetCharacterInfo(source)
+    -- Use the framework abstraction directly (not via export to avoid recursion)
+    if PoggyFramework and PoggyFramework.IsReady and PoggyFramework.GetCharacterInfo then
+        local charInfo = PoggyFramework.GetCharacterInfo(source)
         if charInfo then
             return charInfo
         end
@@ -68,14 +68,15 @@ function PoggyUtil.Player.GetCharacterInfo(source)
             VORPCore = exports.vorp_core:vorpAPI()
         end)
         
-        -- Fallback to old API if new one doesn't exist
-        if not success or not VORPCore then
+        -- Fallback to old API if new one doesn't have getUser
+        if not success or not VORPCore or not VORPCore.getUser then
+            VORPCore = nil
             success = pcall(function()
                 VORPCore = exports.vorp_core:GetCore()
             end)
         end
         
-        if success and VORPCore then
+        if success and VORPCore and VORPCore.getUser then
             local user = VORPCore.getUser(src)
             if user then
                 local character = user.getUsedCharacter
@@ -227,14 +228,15 @@ Citizen.CreateThread(function()
                                     VORPCore = exports.vorp_core:vorpAPI()
                                 end)
                                 
-                                -- Fallback to old API if new one doesn't exist
-                                if not success or not VORPCore then
+                                -- Fallback to old API if new one doesn't have getUser
+                                if not success or not VORPCore or not VORPCore.getUser then
+                                    VORPCore = nil
                                     success = pcall(function()
                                         VORPCore = exports.vorp_core:GetCore()
                                     end)
                                 end
                                 
-                                if success and VORPCore then
+                                if success and VORPCore and VORPCore.getUser then
                                     local user = VORPCore.getUser(src)
                                     if user then
                                         local char = user.getUsedCharacter
